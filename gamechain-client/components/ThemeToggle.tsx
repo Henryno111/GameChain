@@ -11,14 +11,26 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
     setMounted(true);
   }, []);
 
+  // Handle click with debugging
+  const handleToggle = () => {
+    console.log('Theme toggle clicked:', { currentTheme: theme, currentActualTheme: actualTheme });
+    toggleTheme();
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newTheme = e.target.value as 'light' | 'dark' | 'system';
+    console.log('Theme select changed to:', newTheme);
+    setTheme(newTheme);
+  };
+
   if (!mounted) {
     return (
       <button
-        className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-gamechain-outline bg-gamechain-surface hover:bg-gamechain-surface-variant transition-colors"
+        className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-gray-300 bg-white hover:bg-gray-50 transition-colors"
         disabled
       >
         <span className="sr-only">Toggle theme</span>
-        <div className="w-4 h-4 bg-gamechain-neutral rounded-full animate-pulse" />
+        <div className="w-4 h-4 bg-gray-400 rounded-full animate-pulse" />
       </button>
     );
   }
@@ -26,15 +38,15 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
       <button
-        onClick={toggleTheme}
+        onClick={handleToggle}
         className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-gamechain-outline bg-gamechain-surface hover:bg-gamechain-surface-variant transition-colors focus:outline-none focus:ring-2 focus:ring-gamechain-primary focus:ring-offset-2"
         title={`Current theme: ${theme} (${actualTheme})`}
       >
         <span className="sr-only">Toggle theme</span>
         {actualTheme === 'light' ? (
-          <SunIcon className="w-4 h-4" />
+          <SunIcon className="w-4 h-4 text-gamechain-neutral" />
         ) : (
-          <MoonIcon className="w-4 h-4" />
+          <MoonIcon className="w-4 h-4 text-gamechain-neutral" />
         )}
       </button>
     );
@@ -44,22 +56,22 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
     <div className="flex items-center space-x-2">
       {/* Quick toggle button */}
       <button
-        onClick={toggleTheme}
+        onClick={handleToggle}
         className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-gamechain-outline bg-gamechain-surface hover:bg-gamechain-surface-variant transition-colors focus:outline-none focus:ring-2 focus:ring-gamechain-primary focus:ring-offset-2"
         title={`Current theme: ${theme} (${actualTheme})`}
       >
         <span className="sr-only">Toggle theme</span>
         {actualTheme === 'light' ? (
-          <SunIcon className="w-4 h-4" />
+          <SunIcon className="w-4 h-4 text-gamechain-neutral" />
         ) : (
-          <MoonIcon className="w-4 h-4" />
+          <MoonIcon className="w-4 h-4 text-gamechain-neutral" />
         )}
       </button>
 
       {/* Theme selector dropdown */}
       <select
         value={theme}
-        onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
+        onChange={handleSelectChange}
         className="text-sm px-2 py-1 rounded-md border border-gamechain-outline bg-gamechain-surface text-foreground focus:outline-none focus:ring-2 focus:ring-gamechain-primary focus:ring-offset-2"
       >
         <option value="light">Light</option>

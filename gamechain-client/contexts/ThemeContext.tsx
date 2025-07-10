@@ -21,40 +21,56 @@ export function useTheme() {
   return context;
 }
 
+function getSystemTheme(): 'light' | 'dark' {
+  if (typeof window === 'undefined') return 'light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function getStoredTheme(): Theme {
+  if (typeof window === 'undefined') return 'system';
+  try {
+    const stored = localStorage.getItem('gamechain-theme') as Theme;
+    return stored && ['light', 'dark', 'system'].includes(stored) ? stored : 'system';
+  } catch {
+    return 'system';
+  }
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('system');
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
+  const [mounted, setMounted] = useState(false);
 
-  // Initialize theme from localStorage or system preference
+  // Initialize theme on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('gamechain-theme') as Theme;
-    if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
-      setThemeState(savedTheme);
-    } else {
-      setThemeState('system');
-    }
+    setMounted(true);
+    const storedTheme = getStoredTheme();
+    setThemeState(storedTheme);
+    
+    // Set initial actual theme
+    const systemTheme = getSystemTheme();
+    const initialActualTheme = storedTheme === 'system' ? systemTheme : storedTheme;
+    setActualTheme(initialActualTheme);
+    
+    // Apply initial theme
+    applyTheme(initialActualTheme);
   }, []);
 
-  // Update actual theme based on current theme setting
+  // Update actual theme when theme changes
   useEffect(() => {
+    if (!mounted) return;
+
     const updateActualTheme = () => {
-      let newActualTheme: 'light' | 'dark' = 'light';
+      let newActualTheme: 'light' | 'dark';
       
       if (theme === 'system') {
-        newActualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        newActualTheme = getSystemTheme();
       } else {
         newActualTheme = theme;
       }
       
       setActualTheme(newActualTheme);
-      
-      // Apply theme to document
-      const root = document.documentElement;
-      if (newActualTheme === 'dark') {
-        root.setAttribute('data-theme', 'dark');
-      } else {
-        root.removeAttribute('data-theme');
-      }
+      applyTheme(newActualTheme);
     };
 
     updateActualTheme();
@@ -62,16 +78,34 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Listen for system theme changes when in system mode
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => updateActualTheme();
-      
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+      mediaQuery.addEventListener('change', updateActualTheme);
+      return () => mediaQuery.removeEventListener('change', updateActualTheme);
     }
-  }, [theme]);
+  }, [theme, mounted]);
+
+  function applyTheme(newTheme: 'light' | 'dark') {
+    const root = document.documentElement;
+    
+    // Remove existing theme classes
+    root.classList.remove('light', 'dark');
+    root.removeAttribute('data-theme');
+    
+    // Apply new theme
+    if (newTheme === 'dark') {
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.classList.add('light');
+    }
+  }
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('gamechain-theme', newTheme);
+    try {
+      localStorage.setItem('gamechain-theme', newTheme);
+    } catch {
+      // Handle localStorage errors gracefully
+    }
   };
 
   const toggleTheme = () => {
@@ -84,6 +118,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme(actualTheme === 'light' ? 'dark' : 'light');
     }
   };
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <ThemeContext.Provider value={{ theme: 'system', actualTheme: 'light', setTheme: () => {}, toggleTheme: () => {} }}>
+        {children}
+      </ThemeContext.Provider>
+    );
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, actualTheme, setTheme, toggleTheme }}>

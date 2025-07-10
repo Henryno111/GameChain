@@ -37,7 +37,7 @@
   --gamechain-outline: #cbd5e1;
 }
 
-[data-theme="dark"] {
+[data-theme="dark"], .dark {
   /* Dark theme colors */
   --background: #0a0a0a;
   --foreground: #f8fafc;
@@ -75,7 +75,7 @@
 
 /* System preference dark mode */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
+  :root:not([data-theme]):not(.light) {
     --background: #0a0a0a;
     --foreground: #f8fafc;
     --card: #1e293b;
