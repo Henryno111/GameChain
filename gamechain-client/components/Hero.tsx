@@ -80,14 +80,15 @@ export function Hero() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.7 }}
               >
-                <motion.button
-                  className="px-8 py-4 bg-gradient-to-r from-gamechain-primary to-gamechain-secondary text-white cyber-text font-semibold rounded-lg neon-border hover:neon-glow transition-all duration-300"
+                <motion.a
+                  href="/dashboard"
+                  className="inline-block px-8 py-4 bg-gradient-to-r from-gamechain-primary to-gamechain-secondary text-white cyber-text font-semibold rounded-lg neon-border hover:neon-glow transition-all duration-300"
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400 }}
                 >
                   START GAMING
-                </motion.button>
+                </motion.a>
                 
                 <motion.button
                   className="px-8 py-4 border-2 border-gamechain-accent text-gamechain-accent cyber-text font-semibold rounded-lg hover:bg-gamechain-accent hover:text-black transition-all duration-300"

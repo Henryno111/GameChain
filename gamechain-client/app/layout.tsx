@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { GameProvider } from "@/contexts/GameContext";
 import { WalletProvider } from "@/providers/WalletProvider";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import "./globals.css";
@@ -40,10 +41,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <WalletProvider>
-            <AnimatedBackground />
-            {children}
-          </WalletProvider>
+          <GameProvider>
+            <WalletProvider>
+              <AnimatedBackground />
+              {children}
+            </WalletProvider>
+          </GameProvider>
         </ThemeProvider>
       </body>
     </html>
